@@ -1,4 +1,6 @@
+import httpStatus from "http-status";
 import config from "../../config";
+import AppError from "../../errors/AppError";
 import { TAcademicSemester } from "../academicSemester/academicSemester.interface";
 import { AcademicSemester } from "../academicSemester/academicSemester.model";
 import { TStudent } from "../students/student.interface";
@@ -6,6 +8,7 @@ import { Student } from "../students/student.model";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 import { generateStudentId } from "./user.utils";
+import mongoose from "mongoose";
 
 const createStudentDB = async (password: string, payload: TStudent) => {
   // for static method
@@ -28,28 +31,54 @@ const createStudentDB = async (password: string, payload: TStudent) => {
   );
 
   if (!admissionSemester) {
-    throw new Error("Semester ID not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Semester ID not found");
   }
-  userData.id = await generateStudentId(admissionSemester);
 
-  // check this email has already account or not
-  const existEmail = await Student.findOne({
-    email: payload.email,
-  });
+  const session = await mongoose.startSession();
 
-  if (existEmail) {
-    throw new Error("This email has already an account");
-  }
-  // create a user
-  const newUser = await User.create(userData);
+  try {
+    session.startTransaction();
 
-  // create a student
-  if (Object.keys(newUser).length) {
+    // set generated Id
+    userData.id = await generateStudentId(admissionSemester);
+
+    // check this email has already account or not
+    const existEmail = await Student.findOne({
+      email: payload.email,
+    });
+
+    if (existEmail) {
+      throw new AppError(
+        httpStatus.NOT_FOUND,
+        "This email has already an account"
+      );
+    }
+
+    // create a user (transaction - 1)
+    const newUser = await User.create([userData], { session });
+
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create user");
+    }
     // set id, _id as user
-    payload.id = newUser.id;
-    payload.user = newUser._id;
-    const newStudent = await Student.create(payload);
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id;
+
+    //  create a student (transaction - 2)
+    const newStudent = await Student.create([payload], { session });
+    if (!newStudent.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create student");
+    }
+
+    // commit transaction
+    await session.commitTransaction();
+    await session.endSession();
+
     return newStudent;
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error("Failed to create student");
   }
 };
 
