@@ -15,7 +15,7 @@ app.use(cors());
 // Student Routes
 app.use("/api/v1/", router);
 
-const testRoute = (req: Request, res: Response) => {
+const testRoute = async (req: Request, res: Response) => {
   res.send("First app running");
 };
 app.get("/", testRoute);
