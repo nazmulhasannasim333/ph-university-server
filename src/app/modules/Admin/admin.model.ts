@@ -1,12 +1,6 @@
 import { Schema, model } from "mongoose";
-import {
-  StudentModel,
-  TGuardian,
-  TLocalGuardian,
-  TStudent,
-  TUserName,
-} from "./student.interface";
-import { BloodGroup, Gender } from "./student.constant";
+import { BloodGroup, Gender } from "./admin.constant";
+import { AdminModel, TAdmin, TUserName } from "./admin.interface";
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -27,55 +21,7 @@ const userNameSchema = new Schema<TUserName>({
   },
 });
 
-const guardianSchema = new Schema<TGuardian>({
-  fatherName: {
-    type: String,
-    trim: true,
-    required: [true, "Father Name is required"],
-  },
-  fatherOccupation: {
-    type: String,
-    trim: true,
-    required: [true, "Father occupation is required"],
-  },
-  fatherContactNo: {
-    type: String,
-    required: [true, "Father Contact No is required"],
-  },
-  motherName: {
-    type: String,
-    required: [true, "Mother Name is required"],
-  },
-  motherOccupation: {
-    type: String,
-    required: [true, "Mother occupation is required"],
-  },
-  motherContactNo: {
-    type: String,
-    required: [true, "Mother Contact No is required"],
-  },
-});
-
-const localGuardianSchema = new Schema<TLocalGuardian>({
-  name: {
-    type: String,
-    required: [true, "Name is required"],
-  },
-  occupation: {
-    type: String,
-    required: [true, "Occupation is required"],
-  },
-  contactNo: {
-    type: String,
-    required: [true, "Contact number is required"],
-  },
-  address: {
-    type: String,
-    required: [true, "Address is required"],
-  },
-});
-
-const studentSchema = new Schema<TStudent, StudentModel>(
+const adminSchema = new Schema<TAdmin, AdminModel>(
   {
     id: {
       type: String,
@@ -87,6 +33,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, "User id is required"],
       unique: true,
       ref: "User",
+    },
+    designation: {
+      type: String,
+      required: [true, "Designation is required"],
     },
     name: {
       type: userNameSchema,
@@ -126,23 +76,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: String,
       required: [true, "Permanent address is required"],
     },
-    guardian: {
-      type: guardianSchema,
-      required: [true, "Guardian information is required"],
-    },
-    localGuardian: {
-      type: localGuardianSchema,
-      required: [true, "Local guardian information is required"],
-    },
     profileImg: { type: String },
-    admissionSemester: {
-      type: Schema.Types.ObjectId,
-      ref: "AcademicSemester",
-    },
-    academicDepartment: {
-      type: Schema.Types.ObjectId,
-      ref: "AcademicDepartment",
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -155,31 +89,31 @@ const studentSchema = new Schema<TStudent, StudentModel>(
   }
 );
 
-// virtual
-studentSchema.virtual("fullName").get(function () {
+// generating full name
+adminSchema.virtual("fullName").get(function () {
   return `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`;
 });
 
-// Query Middleware
-studentSchema.pre("find", function (next) {
+// filter out deleted documents
+adminSchema.pre("find", function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
-studentSchema.pre("findOne", function (next) {
+adminSchema.pre("findOne", function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
-studentSchema.pre("aggregate", function (next) {
+adminSchema.pre("aggregate", function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 });
 
-//creating a custom static method
-studentSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await Student.findOne({ id });
+//checking if user is already exist!
+adminSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Admin.findOne({ id });
   return existingUser;
 };
 
-export const Student = model<TStudent, StudentModel>("Student", studentSchema);
+export const Admin = model<TAdmin, AdminModel>("Admin", adminSchema);
