@@ -50,7 +50,7 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
       },
       required: [true, "Gender is required"],
     },
-    dateOfBirth: { type: String },
+    dateOfBirth: { type: Date },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -79,8 +79,8 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
     profileImg: { type: String },
     academicDepartment: {
       type: Schema.Types.ObjectId,
-      required: [true, "User id is required"],
-      ref: "User",
+      required: [true, "Academic department id is required"],
+      ref: "AcademicDepartment",
     },
     isDeleted: {
       type: Boolean,

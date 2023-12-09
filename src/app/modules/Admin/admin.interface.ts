@@ -23,7 +23,7 @@ export type TAdmin = {
   designation: string;
   name: TUserName;
   gender: TGender;
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
