@@ -2,7 +2,6 @@ import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import { ZodError, ZodIssue } from "zod";
 import config from "../config";
 import handleZodError from "../errors/handleZodErroe";
-import mongoose from "mongoose";
 import handleValidationError from "../errors/handleValidationError";
 import { TErrorSources } from "../interface/error";
 import handleCastError from "../errors/handleCastError";
