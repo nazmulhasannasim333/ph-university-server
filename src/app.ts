@@ -1,7 +1,5 @@
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import { StudentRoutes } from "./app/modules/students/student.route";
-import { UserRoutes } from "./app/modules/user/user.route";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFount from "./app/middlewares/notFound";
 import router from "./app/routes";
@@ -11,7 +9,7 @@ const app: Application = express();
 // parsers
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: ["http://localhost:5173"] }));
+app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
 
 // application routes
 // Student Routes
