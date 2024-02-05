@@ -25,6 +25,8 @@ const createStudentIntoDB = async (
   password: string,
   payload: TStudent
 ) => {
+  // console.log(file);
+
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -66,9 +68,12 @@ const createStudentIntoDB = async (
       const imageName = `${userData.id}${payload?.name?.firstName}`;
       const path = file?.path;
 
+      // console.log({ path });
+
       //send image to cloudinary
       const { secure_url } = await sendImageToCloudinary(imageName, path);
       payload.profileImg = secure_url as string;
+      console.log(secure_url);
     }
 
     // create a user (transaction-1)
