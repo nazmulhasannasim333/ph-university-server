@@ -2,6 +2,9 @@ import express from "express";
 import { StudentController } from "./student.controller";
 import { USER_ROLE } from "../user/user.constant";
 import auth from "../../middlewares/auth";
+import validateRequest from "../../middlewares/validateRequest";
+import { studentValidations } from "../Faculty/faculty.validation";
+import { StudentZodValidations } from "./student.validation";
 
 const router = express.Router();
 
@@ -20,6 +23,7 @@ router.get(
 router.patch(
   "/:id",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  validateRequest(StudentZodValidations.updateStudentValidationSchema),
   StudentController.updateSingleStudent
 );
 router.delete(

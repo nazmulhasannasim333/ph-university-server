@@ -66,7 +66,7 @@ const updateUserNameValidationSchema = z.object({
     )
     .optional(),
   middleName: z.string().optional(),
-  lastName: z.string(),
+  lastName: z.string().optional(),
 });
 
 const updateGuardianValidationSchema = z.object({
