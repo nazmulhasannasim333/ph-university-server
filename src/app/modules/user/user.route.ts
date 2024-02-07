@@ -37,7 +37,7 @@ router.post(
 );
 router.post(
   "/create-admin",
-  auth(USER_ROLE.superAdmin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
