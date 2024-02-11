@@ -154,7 +154,6 @@ const getMyOfferedCoursesFromDB = async (
   query: Record<string, unknown>
 ) => {
   //pagination setup
-
   const page = Number(query?.page) || 1;
   const limit = Number(query?.limit) || 10;
   const skip = (page - 1) * limit;
@@ -162,7 +161,7 @@ const getMyOfferedCoursesFromDB = async (
   const student = await Student.findOne({ id: userId });
   // find the student
   if (!student) {
-    throw new AppError(httpStatus.NOT_FOUND, "User is noty found");
+    throw new AppError(httpStatus.NOT_FOUND, "User is not found");
   }
 
   //find current ongoing semester
@@ -318,6 +317,7 @@ const getMyOfferedCoursesFromDB = async (
   ]);
 
   const total = (await OfferedCourse.aggregate(aggregationQuery)).length;
+
   const totalPage = Math.ceil(result.length / limit);
 
   return {
